@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>$MGExAi Token Presale</title>
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0c10;
+      color: #fff;
+      text-align: center;
+      padding: 2rem;
+    }
+    button {
+      padding: 1rem 2rem;
+      background: #1db954;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>$MGExAi Token Presale</h1>
+  <p>Fixed Price: 0.001 SOL per token</p>
+  <p>Minimum: 0.1 SOL | Maximum: 100 SOL</p>
+  <p>Total Presale Supply: 60,000,000 $MGExAi</p>
+
+  <button id="connectWalletBtn">Connect Phantom Wallet</button>
+  <div id="walletInfo" style="margin: 1rem;"></div>
+
+  <input type="number" id="solAmount" placeholder="Enter SOL amount (0.1 - 100)" step="0.01" />
+  <br/>
+  <button id="buyBtn">Buy Tokens</button>
+
+  <script>
+    const solana = window.solana;
+    let userPublicKey = null;
+
+    async function connectWallet() {
+      try {
+        const resp = await solana.connect();
+        userPublicKey = resp.publicKey.toString();
+        document.getElementById('walletInfo').innerText = 'Wallet: ' + userPublicKey;
+      } catch (err) {
+        alert('Connection failed: ' + err.message);
+      }
+    }
+
+    async function sendSol() {
+      const amount = parseFloat(document.getElementById('solAmount').value);
+      if (isNaN(amount) || amount < 0.1 || amount > 100) {
+        alert("Amount must be between 0.1 and 100 SOL.");
+        return;
+      }
+
+      const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'), 'confirmed');
+      const recipient = new solanaWeb3.PublicKey("FJmgBTcBnBRGthfDJG8qfT5UCKvybs5JR8Cw9HE2hrqZ");
+      const sender = solana.publicKey;
+
+      const transaction = new solanaWeb3.Transaction().add(
+        solanaWeb3.SystemProgram.transfer({
+          fromPubkey: sender,
+          toPubkey: recipient,
+          lamports: solanaWeb3.LAMPORTS_PER_SOL * amount,
+        })
+      );
+
+      try {
+        const { signature } = await solana.signAndSendTransaction(transaction);
+        alert("Transaction sent! Signature: " + signature);
+        // 🔁 اینجا می‌تونی کد ارسال توکن به کاربر رو از طریق بک‌اند یا کلود فانکشن هندل کنی
+      } catch (err) {
+        alert("Transaction failed: " + err.message);
+      }
+    }
+
+    document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
+    document.getElementById('buyBtn').addEventListener('click', sendSol);
+  </script>
+</body>
+</html>
